@@ -2,7 +2,7 @@ class ApiConstants {
   ApiConstants._();
 
   static const String baseUrl = 'https://newsapi.org/v2';
-  static const String apiKey = '45cf1b4a7470403894da422b709c1cbe';
+  static const String apiKey = 'd398a89869b641b3babaa39027b57d44';
   static const String topHeadlines = '/top-headlines';
   static const String everything = '/everything';
 
