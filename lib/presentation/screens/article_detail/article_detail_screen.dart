@@ -41,12 +41,8 @@ class ArticleDetailScreen extends ConsumerWidget {
               ),
             ],
           ),
-          SliverToBoxAdapter(
-            child: _buildImage(context),
-          ),
-          SliverToBoxAdapter(
-            child: _buildArticleContent(context),
-          ),
+          SliverToBoxAdapter(child: _buildImage(context)),
+          SliverToBoxAdapter(child: _buildArticleContent(context)),
         ],
       ),
     );
@@ -54,18 +50,37 @@ class ArticleDetailScreen extends ConsumerWidget {
 
   Widget _buildImage(BuildContext context) {
     if (article.urlToImage == null) return const SizedBox.shrink();
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: CachedNetworkImage(
-        imageUrl: article.urlToImage!,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: const Center(child: CircularProgressIndicator()),
-        ),
-        errorWidget: (context, url, error) => Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: const Icon(Icons.image_not_supported, size: 64),
+
+    final isDesktop = MediaQuery.of(context).size.width >= 1024;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 24 : 0,
+        vertical: 12,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: isDesktop ? 900 : double.infinity,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: CachedNetworkImage(
+                imageUrl: article.urlToImage!,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: const Icon(Icons.image_not_supported, size: 64),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -92,17 +107,18 @@ class ArticleDetailScreen extends ConsumerWidget {
               Text(
                 article.title ?? 'No title',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   if (article.author != null) ...[
-                    Icon(Icons.person_outline,
-                        size: 16,
-                        color:
-                            Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.person_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
@@ -113,10 +129,11 @@ class ArticleDetailScreen extends ConsumerWidget {
                     ),
                     const SizedBox(width: 16),
                   ],
-                  Icon(Icons.access_time,
-                      size: 16,
-                      color:
-                          Theme.of(context).colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     _formatDate(article.publishedAt),
@@ -130,9 +147,9 @@ class ArticleDetailScreen extends ConsumerWidget {
               if (article.description != null) ...[
                 Text(
                   article.description!,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        height: 1.6,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(height: 1.6),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -140,9 +157,9 @@ class ArticleDetailScreen extends ConsumerWidget {
                 Text(
                   article.content!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        height: 1.6,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    height: 1.6,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
             ],
           ),
