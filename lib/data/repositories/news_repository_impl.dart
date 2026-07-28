@@ -107,7 +107,8 @@ class NewsRepositoryImpl implements NewsRepository {
     try {
       final rawList = _localStorage.getList(AppConstants.bookmarksBox);
       return rawList
-          .map((item) => Article.fromJson(jsonDecode(item as String)))
+          .map((item) => Article.fromJson(jsonDecode(item as String))
+              .copyWith(isBookmarked: true))
           .toList();
     } catch (e) {
       return [];
