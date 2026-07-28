@@ -23,78 +23,51 @@ class ArticleDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isWide = ResponsiveUtils.isWide(context);
-
     return Scaffold(
-      body: isWide
-          ? _buildWideLayout(context, ref)
-          : _buildNarrowLayout(context, ref),
-    );
-  }
-
-  Widget _buildNarrowLayout(BuildContext context, WidgetRef ref) {
-    return CustomScrollView(
-      slivers: [
-        _buildSliverAppBar(context, ref),
-        SliverToBoxAdapter(
-          child: _buildArticleContent(context),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWideLayout(BuildContext context, WidgetRef ref) {
-    return Row(
-      children: [
-        Expanded(
-          child: CustomScrollView(
-            slivers: [
-              _buildSliverAppBar(context, ref),
-              SliverToBoxAdapter(
-                child: _buildArticleContent(context),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  article.isBookmarked
+                      ? Icons.bookmark
+                      : Icons.bookmark_outline,
+                ),
+                onPressed: () {
+                  ref.read(bookmarkProvider.notifier).toggleBookmark(article);
+                },
               ),
             ],
           ),
-        ),
-      ],
+          SliverToBoxAdapter(
+            child: _buildImage(context),
+          ),
+          SliverToBoxAdapter(
+            child: _buildArticleContent(context),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, WidgetRef ref) {
-    return SliverAppBar(
-      expandedHeight: 300,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        background: article.urlToImage != null
-            ? CachedNetworkImage(
-                imageUrl: article.urlToImage!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: const Icon(Icons.image_not_supported, size: 64),
-                ),
-              )
-            : Container(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: const Icon(Icons.article, size: 64),
-              ),
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(
-            article.isBookmarked
-                ? Icons.bookmark
-                : Icons.bookmark_outline,
-          ),
-          onPressed: () {
-            ref.read(bookmarkProvider.notifier).toggleBookmark(article);
-          },
+  Widget _buildImage(BuildContext context) {
+    if (article.urlToImage == null) return const SizedBox.shrink();
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: CachedNetworkImage(
+        imageUrl: article.urlToImage!,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: const Center(child: CircularProgressIndicator()),
         ),
-      ],
+        errorWidget: (context, url, error) => Container(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: const Icon(Icons.image_not_supported, size: 64),
+        ),
+      ),
     );
   }
 
