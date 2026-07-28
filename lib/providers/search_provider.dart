@@ -101,6 +101,16 @@ class SearchNotifier extends StateNotifier<SearchState> {
     state = const SearchState.initial();
   }
 
+  void updateArticleBookmark(String url, bool isBookmarked) {
+    final currentState = state;
+    if (currentState is! SearchLoaded) return;
+    final updated = currentState.articles.map((a) {
+      if (a.url == url) return a.copyWith(isBookmarked: isBookmarked);
+      return a;
+    }).toList();
+    state = currentState.copyWith(articles: updated);
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();

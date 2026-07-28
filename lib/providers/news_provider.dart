@@ -95,6 +95,16 @@ class NewsNotifier extends StateNotifier<NewsState> {
   Future<void> refresh() async {
     await fetchTopHeadlines(category: _currentCategory, refresh: true);
   }
+
+  void updateArticleBookmark(String url, bool isBookmarked) {
+    final currentState = state;
+    if (currentState is! NewsLoaded) return;
+    final updated = currentState.articles.map((a) {
+      if (a.url == url) return a.copyWith(isBookmarked: isBookmarked);
+      return a;
+    }).toList();
+    state = currentState.copyWith(articles: updated);
+  }
 }
 
 final newsProvider = StateNotifierProvider<NewsNotifier, NewsState>((ref) {
