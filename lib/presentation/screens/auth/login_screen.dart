@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:news_reader/providers/auth_provider.dart';
 import 'package:news_reader/providers/auth_state.dart';
+import 'package:news_reader/core/utils/responsive_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -55,6 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final isWide = ResponsiveUtils.isWide(context);
 
     ref.listen<AuthState>(authProvider, (previous, next) {
       next.maybeWhen(
@@ -71,9 +73,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isWide ? 48 : 24),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: BoxConstraints(
+                maxWidth: isWide ? 440 : 400,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -82,7 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     Icon(
                       Icons.article_outlined,
-                      size: 80,
+                      size: isWide ? 88 : 80,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(height: 16),

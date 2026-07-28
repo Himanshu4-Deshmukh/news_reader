@@ -8,6 +8,7 @@ import 'package:news_reader/providers/bookmark_provider.dart';
 import 'package:news_reader/providers/theme_provider.dart';
 import 'package:news_reader/presentation/widgets/news_card.dart';
 import 'package:news_reader/presentation/widgets/loading_shimmer.dart';
+import 'package:news_reader/core/utils/responsive_utils.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -65,6 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final newsState = ref.watch(newsProvider);
     final themeMode = ref.watch(themeProvider);
+    final isWide = ResponsiveUtils.isWide(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -129,26 +131,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: 50,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final category = _categories[index];
-                final isSelected = _selectedCategory == category;
-                return FilterChip(
-                  label: Text(category[0].toUpperCase() + category.substring(1)),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    _onCategorySelected(isSelected ? null : category);
-                  },
-                );
-              },
-            ),
-          ),
+          if (isWide)
+            _buildWrappedCategories()
+          else
+            _buildScrollableCategories(),
           Expanded(
             child: _buildBody(newsState),
           ),
@@ -157,54 +143,83 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Widget _buildScrollableCategories() {
+    return SizedBox(
+      height: 50,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+          return FilterChip(
+            label: Text(category[0].toUpperCase() + category.substring(1)),
+            selected: isSelected,
+            onSelected: (_) {
+              _onCategorySelected(isSelected ? null : category);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWrappedCategories() {
+    final padding = ResponsiveUtils.horizontalPadding(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: _categories.map((category) {
+          final isSelected = _selectedCategory == category;
+          return FilterChip(
+            label: Text(category[0].toUpperCase() + category.substring(1)),
+            selected: isSelected,
+            onSelected: (_) {
+              _onCategorySelected(isSelected ? null : category);
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildBody(NewsState newsState) {
+    final columns = ResponsiveUtils.gridColumns(context);
+    final padding = ResponsiveUtils.horizontalPadding(context);
+
     return newsState.when(
       initial: () => const Center(child: Text('Pull to load news')),
       loading: () => const LoadingShimmer(),
       loaded: (articles, currentPage, hasReachedMax) {
         return RefreshIndicator(
           onRefresh: () => ref.read(newsProvider.notifier).refresh(),
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: articles.length + (hasReachedMax ? 0 : 1),
-            itemBuilder: (context, index) {
-              if (index >= articles.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return NewsCard(
-                article: articles[index],
-                onTap: () {
-                  context.push('/article', extra: articles[index]);
-                },
-                onBookmark: () {
-                  ref.read(bookmarkProvider.notifier).toggleBookmark(
-                        articles[index],
-                      );
-                },
-              );
-            },
-          ),
+          child: columns == 1
+              ? _buildListView(articles, hasReachedMax, padding)
+              : _buildGridView(articles, hasReachedMax, columns, padding),
         );
       },
       error: (message) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () =>
-                  ref.read(newsProvider.notifier).fetchTopHeadlines(refresh: true),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(message, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () =>
+                    ref.read(newsProvider.notifier).fetchTopHeadlines(refresh: true),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
       empty: () => const Center(
@@ -217,6 +232,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildListView(
+      List articles, bool hasReachedMax, double padding) {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: EdgeInsets.all(padding),
+      itemCount: articles.length + (hasReachedMax ? 0 : 1),
+      itemBuilder: (context, index) {
+        if (index >= articles.length) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return NewsCard(
+          article: articles[index],
+          onTap: () {
+            context.push('/article', extra: articles[index]);
+          },
+          onBookmark: () {
+            ref.read(bookmarkProvider.notifier).toggleBookmark(
+                  articles[index],
+                );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildGridView(
+      List articles, bool hasReachedMax, int columns, double padding) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final spacing = 16.0;
+        final availableWidth =
+            constraints.maxWidth - (padding * 2) - (spacing * (columns - 1));
+        final cardWidth = availableWidth / columns;
+
+        return SingleChildScrollView(
+          controller: _scrollController,
+          padding: EdgeInsets.all(padding),
+          child: Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [
+              ...List.generate(
+                articles.length,
+                (index) => SizedBox(
+                  width: cardWidth,
+                  child: NewsCard(
+                    article: articles[index],
+                    onTap: () {
+                      context.push('/article', extra: articles[index]);
+                    },
+                    onBookmark: () {
+                      ref.read(bookmarkProvider.notifier).toggleBookmark(
+                            articles[index],
+                          );
+                    },
+                  ),
+                ),
+              ),
+              if (!hasReachedMax)
+                SizedBox(
+                  width: cardWidth,
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
