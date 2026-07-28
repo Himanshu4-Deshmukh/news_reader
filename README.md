@@ -162,6 +162,20 @@ This project follows **Clean Architecture** with clear separation of concerns:
 - System default
 - Theme persistence across sessions
 
+## Screenshots
+
+| Login | Home | Search |
+|:---:|:---:|:---:|
+| ![Login](screenshots/login_page.jpeg) | ![Home](screenshots/home_page.jpeg) | ![Search](screenshots/search_page.jpeg) |
+
+| Bookmarks | Details | Dark Mode |
+|:---:|:---:|:---:|
+| ![Bookmarks](screenshots/bookmark_page.jpeg) | ![Details](screenshots/detail_page.jpeg) | ![Dark Mode](screenshots/dark_mode.jpeg) |
+
+| Cached Data |
+|:---:|
+| ![Cached Data](screenshots/cached_data.jpeg) |
+
 ## API
 
 This application uses the [NewsAPI](https://newsapi.org/) for fetching news articles. The API key is included for development purposes.
