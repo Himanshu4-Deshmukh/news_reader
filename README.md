@@ -176,6 +176,12 @@ This project follows **Clean Architecture** with clear separation of concerns:
 |:---:|
 | ![Cached Data](screenshots/cached_data.jpeg) |
 
+## Download
+
+| Platform | Download |
+|:---:|:---:|
+| Android | [Download APK](apk/news_reader.apk) |
+
 ## API
 
 This application uses the [NewsAPI](https://newsapi.org/) for fetching news articles. The API key is included for development purposes.
