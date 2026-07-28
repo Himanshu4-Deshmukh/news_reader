@@ -11,6 +11,7 @@ class NewsState with _$NewsState {
     required List<Article> articles,
     required int currentPage,
     required bool hasReachedMax,
+    @Default(false) bool isFromCache,
   }) = NewsLoaded;
   const factory NewsState.error(String message) = NewsError;
   const factory NewsState.empty() = NewsEmpty;

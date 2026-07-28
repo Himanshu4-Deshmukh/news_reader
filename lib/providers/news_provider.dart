@@ -22,12 +22,24 @@ class NewsNotifier extends StateNotifier<NewsState> {
       final networkInfo = _ref.read(networkInfoProvider);
       final isConnected = await networkInfo.isConnected;
 
-      if (!isConnected && state is! NewsLoaded) {
-        state = const NewsState.error('No internet connection');
+      final newsRepo = _ref.read(newsRepositoryProvider);
+
+      if (!isConnected) {
+        // Try loading from cache
+        final cached = await newsRepo.getCachedHeadlines(category: category);
+        if (cached != null && cached.isNotEmpty) {
+          state = NewsState.loaded(
+            articles: cached,
+            currentPage: 1,
+            hasReachedMax: true,
+            isFromCache: true,
+          );
+        } else {
+          state = const NewsState.error('No internet connection');
+        }
         return;
       }
 
-      final newsRepo = _ref.read(newsRepositoryProvider);
       final articles = await newsRepo.getTopHeadlines(
         category: category,
         page: 1,
@@ -43,7 +55,6 @@ class NewsNotifier extends StateNotifier<NewsState> {
         );
       }
     } on AppException catch (e) {
-      // If we have cached data, show it
       if (state is NewsLoaded) {
         return;
       }

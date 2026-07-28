@@ -10,4 +10,8 @@ class AppConstants {
   static const String themeKey = 'theme_mode';
   static const String userKey = 'current_user';
   static const String isLoggedInKey = 'is_logged_in';
+
+  // Cache keys
+  static const String cachedHeadlines = 'cached_headlines';
+  static const String cachedSearch = 'cached_search';
 }

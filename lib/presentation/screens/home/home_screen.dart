@@ -194,12 +194,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return newsState.when(
       initial: () => const Center(child: Text('Pull to load news')),
       loading: () => const LoadingShimmer(),
-      loaded: (articles, currentPage, hasReachedMax) {
-        return RefreshIndicator(
-          onRefresh: () => ref.read(newsProvider.notifier).refresh(),
-          child: columns == 1
-              ? _buildListView(articles, hasReachedMax, padding)
-              : _buildGridView(articles, hasReachedMax, columns, padding),
+      loaded: (articles, currentPage, hasReachedMax, isFromCache) {
+        return Column(
+          children: [
+            if (isFromCache)
+              MaterialBanner(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                content: const Text('You are offline. Showing cached articles.'),
+                leading: const Icon(Icons.wifi_off),
+                actions: [
+                  TextButton(
+                    onPressed: () =>
+                        ref.read(newsProvider.notifier).refresh(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => ref.read(newsProvider.notifier).refresh(),
+                child: columns == 1
+                    ? _buildListView(articles, hasReachedMax, padding)
+                    : _buildGridView(
+                        articles, hasReachedMax, columns, padding),
+              ),
+            ),
+          ],
         );
       },
       error: (message) => Center(

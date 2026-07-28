@@ -25,6 +25,7 @@ mixin _$NewsState {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -38,6 +39,7 @@ mixin _$NewsState {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -51,6 +53,7 @@ mixin _$NewsState {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -153,6 +156,7 @@ class _$NewsInitialImpl implements NewsInitial {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -170,6 +174,7 @@ class _$NewsInitialImpl implements NewsInitial {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -187,6 +192,7 @@ class _$NewsInitialImpl implements NewsInitial {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -293,6 +299,7 @@ class _$NewsLoadingImpl implements NewsLoading {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -310,6 +317,7 @@ class _$NewsLoadingImpl implements NewsLoading {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -327,6 +335,7 @@ class _$NewsLoadingImpl implements NewsLoading {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -391,7 +400,12 @@ abstract class _$$NewsLoadedImplCopyWith<$Res> {
     $Res Function(_$NewsLoadedImpl) then,
   ) = __$$NewsLoadedImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({List<Article> articles, int currentPage, bool hasReachedMax});
+  $Res call({
+    List<Article> articles,
+    int currentPage,
+    bool hasReachedMax,
+    bool isFromCache,
+  });
 }
 
 /// @nodoc
@@ -411,6 +425,7 @@ class __$$NewsLoadedImplCopyWithImpl<$Res>
     Object? articles = null,
     Object? currentPage = null,
     Object? hasReachedMax = null,
+    Object? isFromCache = null,
   }) {
     return _then(
       _$NewsLoadedImpl(
@@ -426,6 +441,10 @@ class __$$NewsLoadedImplCopyWithImpl<$Res>
             ? _value.hasReachedMax
             : hasReachedMax // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isFromCache: null == isFromCache
+            ? _value.isFromCache
+            : isFromCache // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -438,6 +457,7 @@ class _$NewsLoadedImpl implements NewsLoaded {
     required final List<Article> articles,
     required this.currentPage,
     required this.hasReachedMax,
+    this.isFromCache = false,
   }) : _articles = articles;
 
   final List<Article> _articles;
@@ -452,10 +472,13 @@ class _$NewsLoadedImpl implements NewsLoaded {
   final int currentPage;
   @override
   final bool hasReachedMax;
+  @override
+  @JsonKey()
+  final bool isFromCache;
 
   @override
   String toString() {
-    return 'NewsState.loaded(articles: $articles, currentPage: $currentPage, hasReachedMax: $hasReachedMax)';
+    return 'NewsState.loaded(articles: $articles, currentPage: $currentPage, hasReachedMax: $hasReachedMax, isFromCache: $isFromCache)';
   }
 
   @override
@@ -467,7 +490,9 @@ class _$NewsLoadedImpl implements NewsLoaded {
             (identical(other.currentPage, currentPage) ||
                 other.currentPage == currentPage) &&
             (identical(other.hasReachedMax, hasReachedMax) ||
-                other.hasReachedMax == hasReachedMax));
+                other.hasReachedMax == hasReachedMax) &&
+            (identical(other.isFromCache, isFromCache) ||
+                other.isFromCache == isFromCache));
   }
 
   @override
@@ -476,6 +501,7 @@ class _$NewsLoadedImpl implements NewsLoaded {
     const DeepCollectionEquality().hash(_articles),
     currentPage,
     hasReachedMax,
+    isFromCache,
   );
 
   /// Create a copy of NewsState
@@ -495,12 +521,13 @@ class _$NewsLoadedImpl implements NewsLoaded {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
     required TResult Function() empty,
   }) {
-    return loaded(articles, currentPage, hasReachedMax);
+    return loaded(articles, currentPage, hasReachedMax, isFromCache);
   }
 
   @override
@@ -512,12 +539,13 @@ class _$NewsLoadedImpl implements NewsLoaded {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
     TResult? Function()? empty,
   }) {
-    return loaded?.call(articles, currentPage, hasReachedMax);
+    return loaded?.call(articles, currentPage, hasReachedMax, isFromCache);
   }
 
   @override
@@ -529,6 +557,7 @@ class _$NewsLoadedImpl implements NewsLoaded {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -536,7 +565,7 @@ class _$NewsLoadedImpl implements NewsLoaded {
     required TResult orElse(),
   }) {
     if (loaded != null) {
-      return loaded(articles, currentPage, hasReachedMax);
+      return loaded(articles, currentPage, hasReachedMax, isFromCache);
     }
     return orElse();
   }
@@ -587,11 +616,13 @@ abstract class NewsLoaded implements NewsState {
     required final List<Article> articles,
     required final int currentPage,
     required final bool hasReachedMax,
+    final bool isFromCache,
   }) = _$NewsLoadedImpl;
 
   List<Article> get articles;
   int get currentPage;
   bool get hasReachedMax;
+  bool get isFromCache;
 
   /// Create a copy of NewsState
   /// with the given fields replaced by the non-null parameter values.
@@ -676,6 +707,7 @@ class _$NewsErrorImpl implements NewsError {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -693,6 +725,7 @@ class _$NewsErrorImpl implements NewsError {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -710,6 +743,7 @@ class _$NewsErrorImpl implements NewsError {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -824,6 +858,7 @@ class _$NewsEmptyImpl implements NewsEmpty {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -841,6 +876,7 @@ class _$NewsEmptyImpl implements NewsEmpty {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -858,6 +894,7 @@ class _$NewsEmptyImpl implements NewsEmpty {
       List<Article> articles,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,

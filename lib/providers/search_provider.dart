@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:news_reader/core/errors/app_exception.dart';
 import 'package:news_reader/providers/repository_providers.dart';
 import 'package:news_reader/providers/search_state.dart';
+import 'package:news_reader/providers/service_providers.dart';
 
 class SearchNotifier extends StateNotifier<SearchState> {
   final Ref _ref;
@@ -29,7 +30,27 @@ class SearchNotifier extends StateNotifier<SearchState> {
     state = const SearchState.loading();
 
     try {
+      final networkInfo = _ref.read(networkInfoProvider);
+      final isConnected = await networkInfo.isConnected;
+
       final newsRepo = _ref.read(newsRepositoryProvider);
+
+      if (!isConnected) {
+        final cached = await newsRepo.getCachedSearchResults(query);
+        if (cached != null && cached.isNotEmpty) {
+          state = SearchState.loaded(
+            articles: cached,
+            query: query,
+            currentPage: 1,
+            hasReachedMax: true,
+            isFromCache: true,
+          );
+        } else {
+          state = const SearchState.error('No internet connection');
+        }
+        return;
+      }
+
       final articles = await newsRepo.searchArticles(query: query);
 
       if (articles.isEmpty) {

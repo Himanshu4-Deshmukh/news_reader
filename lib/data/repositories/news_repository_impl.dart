@@ -39,15 +39,24 @@ class NewsRepositoryImpl implements NewsRepository {
           .map((json) => Article.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      // Sync bookmarks
+      // Cache articles for offline use (only page 1)
+      if (page == 1) {
+        await _saveHeadlinesToCache(articles, category);
+      }
+
       final bookmarkedUrls = await _getBookmarkedUrls();
       return articles.map((a) {
         final isBookmarked = bookmarkedUrls.contains(a.url);
         return a.copyWith(isBookmarked: isBookmarked);
       }).toList();
     } on AppException {
+      // Try loading from cache before rethrowing
+      final cached = await _getCachedHeadlines(category: category);
+      if (cached != null && cached.isNotEmpty) return cached;
       rethrow;
     } catch (e) {
+      final cached = await _getCachedHeadlines(category: category);
+      if (cached != null && cached.isNotEmpty) return cached;
       throw const InvalidResponseException();
     }
   }
@@ -72,14 +81,23 @@ class NewsRepositoryImpl implements NewsRepository {
           .map((json) => Article.fromJson(json as Map<String, dynamic>))
           .toList();
 
+      // Cache search results for offline use (only page 1)
+      if (page == 1) {
+        await _saveSearchToCache(query, articles);
+      }
+
       final bookmarkedUrls = await _getBookmarkedUrls();
       return articles.map((a) {
         final isBookmarked = bookmarkedUrls.contains(a.url);
         return a.copyWith(isBookmarked: isBookmarked);
       }).toList();
     } on AppException {
+      final cached = await _getCachedSearchResults(query);
+      if (cached != null && cached.isNotEmpty) return cached;
       rethrow;
     } catch (e) {
+      final cached = await _getCachedSearchResults(query);
+      if (cached != null && cached.isNotEmpty) return cached;
       throw const InvalidResponseException();
     }
   }
@@ -136,5 +154,107 @@ class NewsRepositoryImpl implements NewsRepository {
       final decoded = jsonDecode(item as String) as Map<String, dynamic>;
       return decoded['url'] as String? ?? '';
     }).toList();
+  }
+
+  Future<void> _saveHeadlinesToCache(List<Article> articles, String? category) async {
+    try {
+      final key = AppConstants.cachedHeadlines;
+      final raw = _localStorage.get(key, defaultValue: <String, dynamic>{});
+      final cache = Map<String, dynamic>.from(raw as Map);
+
+      final serialized = articles.map((a) => jsonEncode(a.toJson())).toList();
+      cache[category ?? ''] = serialized;
+      await _localStorage.save(key, cache);
+    } catch (_) {}
+  }
+
+  Future<List<Article>?> _getCachedHeadlines({String? category}) async {
+    try {
+      final key = AppConstants.cachedHeadlines;
+      final raw = _localStorage.get(key);
+      if (raw == null) return null;
+
+      final cache = Map<String, dynamic>.from(raw as Map);
+      final rawArticles = cache[category ?? ''] as List<dynamic>?;
+      if (rawArticles == null || rawArticles.isEmpty) return null;
+
+      final articles = rawArticles.map((item) {
+        return Article.fromJson(jsonDecode(item as String));
+      }).toList();
+
+      final bookmarkedUrls = await _getBookmarkedUrls();
+      return articles.map((a) {
+        final isBookmarked = bookmarkedUrls.contains(a.url);
+        return a.copyWith(isBookmarked: isBookmarked);
+      }).toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _saveSearchToCache(String query, List<Article> articles) async {
+    try {
+      final key = AppConstants.cachedSearch;
+      final raw = _localStorage.get(key, defaultValue: <String, dynamic>{});
+      final cache = Map<String, dynamic>.from(raw as Map);
+
+      final serialized = articles.map((a) => jsonEncode(a.toJson())).toList();
+      cache[query] = serialized;
+      await _localStorage.save(key, cache);
+    } catch (_) {}
+  }
+
+  Future<List<Article>?> _getCachedSearchResults(String query) async {
+    try {
+      final key = AppConstants.cachedSearch;
+      final raw = _localStorage.get(key);
+      if (raw == null) return null;
+
+      final cache = Map<String, dynamic>.from(raw as Map);
+      final rawArticles = cache[query] as List<dynamic>?;
+      if (rawArticles == null || rawArticles.isEmpty) return null;
+
+      final articles = rawArticles.map((item) {
+        return Article.fromJson(jsonDecode(item as String));
+      }).toList();
+
+      final bookmarkedUrls = await _getBookmarkedUrls();
+      return articles.map((a) {
+        final isBookmarked = bookmarkedUrls.contains(a.url);
+        return a.copyWith(isBookmarked: isBookmarked);
+      }).toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Public cache methods for external use
+  @override
+  Future<void> cacheHeadlines({String? category}) async {
+    // Re-fetch and cache (used externally to refresh cache)
+    try {
+      final data = await _apiService.getTopHeadlines(category: category, page: 1);
+      final articlesJson = data['articles'] as List<dynamic>?;
+      if (articlesJson == null || articlesJson.isEmpty) return;
+      final articles = articlesJson
+          .map((j) => Article.fromJson(j as Map<String, dynamic>))
+          .toList();
+      await _saveHeadlinesToCache(articles, category);
+    } catch (_) {}
+  }
+
+  @override
+  Future<List<Article>?> getCachedHeadlines({String? category}) async {
+    return _getCachedHeadlines(category: category);
+  }
+
+  @override
+  Future<void> cacheSearchResults(String query, List<Article> articles) async {
+    await _saveSearchToCache(query, articles);
+  }
+
+  @override
+  Future<List<Article>?> getCachedSearchResults(String query) async {
+    return _getCachedSearchResults(query);
   }
 }

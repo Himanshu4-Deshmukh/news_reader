@@ -26,6 +26,7 @@ mixin _$SearchState {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -40,6 +41,7 @@ mixin _$SearchState {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -54,6 +56,7 @@ mixin _$SearchState {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -159,6 +162,7 @@ class _$SearchInitialImpl implements SearchInitial {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -177,6 +181,7 @@ class _$SearchInitialImpl implements SearchInitial {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -195,6 +200,7 @@ class _$SearchInitialImpl implements SearchInitial {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -302,6 +308,7 @@ class _$SearchLoadingImpl implements SearchLoading {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -320,6 +327,7 @@ class _$SearchLoadingImpl implements SearchLoading {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -338,6 +346,7 @@ class _$SearchLoadingImpl implements SearchLoading {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -407,6 +416,7 @@ abstract class _$$SearchLoadedImplCopyWith<$Res> {
     String query,
     int currentPage,
     bool hasReachedMax,
+    bool isFromCache,
   });
 }
 
@@ -428,6 +438,7 @@ class __$$SearchLoadedImplCopyWithImpl<$Res>
     Object? query = null,
     Object? currentPage = null,
     Object? hasReachedMax = null,
+    Object? isFromCache = null,
   }) {
     return _then(
       _$SearchLoadedImpl(
@@ -447,6 +458,10 @@ class __$$SearchLoadedImplCopyWithImpl<$Res>
             ? _value.hasReachedMax
             : hasReachedMax // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isFromCache: null == isFromCache
+            ? _value.isFromCache
+            : isFromCache // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -460,6 +475,7 @@ class _$SearchLoadedImpl implements SearchLoaded {
     required this.query,
     required this.currentPage,
     required this.hasReachedMax,
+    this.isFromCache = false,
   }) : _articles = articles;
 
   final List<Article> _articles;
@@ -476,10 +492,13 @@ class _$SearchLoadedImpl implements SearchLoaded {
   final int currentPage;
   @override
   final bool hasReachedMax;
+  @override
+  @JsonKey()
+  final bool isFromCache;
 
   @override
   String toString() {
-    return 'SearchState.loaded(articles: $articles, query: $query, currentPage: $currentPage, hasReachedMax: $hasReachedMax)';
+    return 'SearchState.loaded(articles: $articles, query: $query, currentPage: $currentPage, hasReachedMax: $hasReachedMax, isFromCache: $isFromCache)';
   }
 
   @override
@@ -492,7 +511,9 @@ class _$SearchLoadedImpl implements SearchLoaded {
             (identical(other.currentPage, currentPage) ||
                 other.currentPage == currentPage) &&
             (identical(other.hasReachedMax, hasReachedMax) ||
-                other.hasReachedMax == hasReachedMax));
+                other.hasReachedMax == hasReachedMax) &&
+            (identical(other.isFromCache, isFromCache) ||
+                other.isFromCache == isFromCache));
   }
 
   @override
@@ -502,6 +523,7 @@ class _$SearchLoadedImpl implements SearchLoaded {
     query,
     currentPage,
     hasReachedMax,
+    isFromCache,
   );
 
   /// Create a copy of SearchState
@@ -522,12 +544,13 @@ class _$SearchLoadedImpl implements SearchLoaded {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
     required TResult Function() empty,
   }) {
-    return loaded(articles, query, currentPage, hasReachedMax);
+    return loaded(articles, query, currentPage, hasReachedMax, isFromCache);
   }
 
   @override
@@ -540,12 +563,19 @@ class _$SearchLoadedImpl implements SearchLoaded {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
     TResult? Function()? empty,
   }) {
-    return loaded?.call(articles, query, currentPage, hasReachedMax);
+    return loaded?.call(
+      articles,
+      query,
+      currentPage,
+      hasReachedMax,
+      isFromCache,
+    );
   }
 
   @override
@@ -558,6 +588,7 @@ class _$SearchLoadedImpl implements SearchLoaded {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -565,7 +596,7 @@ class _$SearchLoadedImpl implements SearchLoaded {
     required TResult orElse(),
   }) {
     if (loaded != null) {
-      return loaded(articles, query, currentPage, hasReachedMax);
+      return loaded(articles, query, currentPage, hasReachedMax, isFromCache);
     }
     return orElse();
   }
@@ -617,12 +648,14 @@ abstract class SearchLoaded implements SearchState {
     required final String query,
     required final int currentPage,
     required final bool hasReachedMax,
+    final bool isFromCache,
   }) = _$SearchLoadedImpl;
 
   List<Article> get articles;
   String get query;
   int get currentPage;
   bool get hasReachedMax;
+  bool get isFromCache;
 
   /// Create a copy of SearchState
   /// with the given fields replaced by the non-null parameter values.
@@ -708,6 +741,7 @@ class _$SearchErrorImpl implements SearchError {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -726,6 +760,7 @@ class _$SearchErrorImpl implements SearchError {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -744,6 +779,7 @@ class _$SearchErrorImpl implements SearchError {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,
@@ -859,6 +895,7 @@ class _$SearchEmptyImpl implements SearchEmpty {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )
     loaded,
     required TResult Function(String message) error,
@@ -877,6 +914,7 @@ class _$SearchEmptyImpl implements SearchEmpty {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult? Function(String message)? error,
@@ -895,6 +933,7 @@ class _$SearchEmptyImpl implements SearchEmpty {
       String query,
       int currentPage,
       bool hasReachedMax,
+      bool isFromCache,
     )?
     loaded,
     TResult Function(String message)? error,

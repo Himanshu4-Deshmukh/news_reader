@@ -12,6 +12,7 @@ class SearchState with _$SearchState {
     required String query,
     required int currentPage,
     required bool hasReachedMax,
+    @Default(false) bool isFromCache,
   }) = SearchLoaded;
   const factory SearchState.error(String message) = SearchError;
   const factory SearchState.empty() = SearchEmpty;

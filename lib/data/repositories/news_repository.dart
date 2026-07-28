@@ -19,4 +19,10 @@ abstract class NewsRepository {
   Future<void> removeBookmark(String articleUrl);
 
   Future<bool> isBookmarked(String articleUrl);
+
+  // Cache methods
+  Future<void> cacheHeadlines({String? category});
+  Future<List<Article>?> getCachedHeadlines({String? category});
+  Future<void> cacheSearchResults(String query, List<Article> articles);
+  Future<List<Article>?> getCachedSearchResults(String query);
 }

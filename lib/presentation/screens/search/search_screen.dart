@@ -108,10 +108,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
       ),
       loading: () => const LoadingShimmer(),
-      loaded: (articles, query, currentPage, hasReachedMax) {
-        return columns == 1
-            ? _buildListView(articles, hasReachedMax, padding)
-            : _buildGridView(articles, hasReachedMax, columns, padding);
+      loaded: (articles, query, currentPage, hasReachedMax, isFromCache) {
+        return Column(
+          children: [
+            if (isFromCache)
+              MaterialBanner(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                content:
+                    const Text('You are offline. Showing cached results.'),
+                leading: const Icon(Icons.wifi_off),
+                actions: [
+                  TextButton(
+                    onPressed: () =>
+                        ref.read(searchProvider.notifier).search(query),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            Expanded(
+              child: columns == 1
+                  ? _buildListView(articles, hasReachedMax, padding)
+                  : _buildGridView(
+                      articles, hasReachedMax, columns, padding),
+            ),
+          ],
+        );
       },
       error: (message) => Center(
         child: Padding(
