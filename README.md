@@ -5,14 +5,16 @@ A modern, production-quality Flutter News Reader application with offline suppor
 ## Project Setup
 
 ### Prerequisites
+
 - Flutter SDK (latest stable version)
 - Dart SDK
 - Android Studio / VS Code with Flutter plugin
 
 ### Installation
+
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Himanshu4-Deshmukh/news_reader.git
 cd news_reader
 
 # Install dependencies
@@ -88,45 +90,51 @@ lib/
 This project follows **Clean Architecture** with clear separation of concerns:
 
 ### Layers
+
 1. **Presentation Layer** - UI screens, widgets, and state management (Riverpod)
 2. **Domain Layer** - Business logic through providers and state classes
 3. **Data Layer** - API services, local storage, models, and repositories
 
 ### State Management
+
 - **Riverpod** for dependency injection and state management
 - **Freezed** for immutable state classes with union types (loading, loaded, error, empty)
 
 ### Routing
+
 - **GoRouter** for declarative routing with auth guards
 
 ### Code Generation
+
 - **Freezed** for immutable data classes and state unions
 - **JsonSerializable** for JSON serialization/deserialization
 
 ## Packages Used
 
-| Package | Purpose |
-|---------|---------|
-| `flutter_riverpod` | State management & dependency injection |
-| `dio` | HTTP networking |
-| `hive_flutter` | Local storage for bookmarks & settings |
-| `go_router` | Declarative routing with auth redirects |
-| `freezed` + `freezed_annotation` | Immutable data classes |
-| `json_serializable` + `json_annotation` | JSON serialization |
-| `connectivity_plus` | Network connectivity checking |
-| `cached_network_image` | Image caching & placeholders |
-| `shimmer` | Loading skeleton effects |
-| `intl` | Date formatting |
+| Package                                 | Purpose                                 |
+| --------------------------------------- | --------------------------------------- |
+| `flutter_riverpod`                      | State management & dependency injection |
+| `dio`                                   | HTTP networking                         |
+| `hive_flutter`                          | Local storage for bookmarks & settings  |
+| `go_router`                             | Declarative routing with auth redirects |
+| `freezed` + `freezed_annotation`        | Immutable data classes                  |
+| `json_serializable` + `json_annotation` | JSON serialization                      |
+| `connectivity_plus`                     | Network connectivity checking           |
+| `cached_network_image`                  | Image caching & placeholders            |
+| `shimmer`                               | Loading skeleton effects                |
+| `intl`                                  | Date formatting                         |
 
 ## Features
 
 ### Authentication
+
 - Mock authentication with email/password validation
 - Session persistence using Hive
 - Auto-login on app restart
 - Logout functionality
 
 ### Home Screen
+
 - News articles from NewsAPI (top headlines)
 - Category filtering (General, Business, Technology, Sports, etc.)
 - Infinite scrolling with pagination
@@ -135,17 +143,20 @@ This project follows **Clean Architecture** with clear separation of concerns:
 - Empty & error state handling
 
 ### Search
+
 - Real-time search with 500ms debounce
 - Search by title and keywords
 - Clear search functionality
 - Dynamic results update
 
 ### Bookmarks
+
 - Bookmark/unbookmark articles
 - Offline bookmark persistence using Hive
 - Dedicated bookmarks screen
 
 ### Theme
+
 - Light mode
 - Dark mode
 - System default
